@@ -12,7 +12,7 @@ def create_mascota(db: Session, mascota: MascotaCreate):
         usuario_existente = db.query(models.Usuario).filter(models.usuario.id == mascota.usuario_id).first()
         if not usuario_existente:
             raise ValueError(
-                f"¡Atención! El usaurio con ID {mascota.usuario_id} no existe. No se puede crear la mascota.")
+                f"¡Atención! La mascota con ID {mascota.usuario_id} no existe. No se puede crear la mascota.")
 
         db_mascota = models.Mascota(
             nombre=mascota.nombre,
@@ -67,7 +67,7 @@ def update_mascota(db: Session, mascota_id: int, mascota: MascotaUpdate):
         if db_mascota:
             update_data = mascota.model_dump(exclude_unset=True)
             if 'usuario_id' in update_data and update_data['usaurio_id'] is not None:
-                usuario_existente = db.query(models.Vuelo).filter(models.Vuelo.id == update_data['usuarip_id']).first()
+                usuario_existente = db.query(models.Vuelo).filter(models.Vuelo.id == update_data['usuario_id']).first()
                 if not usuario_existente:
                     raise ValueError(f"¡Atención! El usuario con ID {update_data['usuario_id']} no existe. No se puede actualizar la mascota.")
 
@@ -133,6 +133,8 @@ def search_mascotas(
             )
         if usuario_id:
             filters.append(models.Mascota.usuario_id == id_usuario)
+        if nombre:
+            filters.append(models.Mascota.nombre.ilike(f"%{nombre}%"))
         if tipo:
             filters.append(models.Mascota.tipo.ilike(f"%{Tipo}%"))
         if raza:
@@ -152,8 +154,6 @@ def search_mascotas(
         print(f"¡Error desconocido al buscar mascotas! Detalles: {e}")
         raise
 
-# --- Funciones para Estadísticas de Jugadores ---
-
 
 def get_soft_deleted_mascotas(db: Session, skip: int = 0, limit: int = 100):
     try:
@@ -162,7 +162,7 @@ def get_soft_deleted_mascotas(db: Session, skip: int = 0, limit: int = 100):
         ).offset(skip).limit(limit).all()
     except OperationalError as e:
         print(f"¡Problema de conexión con la base de datos al obtener mascotas eliminadas! Detalles: {e}")
-        raise ConnectionError("No se pudo conectar a la base de datos para obtener equipos eliminados.")
+        raise ConnectionError("No se pudo conectar a la base de datos para obtener mascotas eliminadas.")
     except Exception as e:
         print(f"¡Error desconocido al obtener mascotas eliminadas lógicamente! Detalles: {e}")
         raise
