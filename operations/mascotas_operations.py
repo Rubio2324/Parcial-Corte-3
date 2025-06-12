@@ -18,7 +18,7 @@ def create_mascota(db: Session, mascota: MascotaCreate):
             nombre=mascota.nombre,
             pais=mascota.pais,
             grupo=mascota.grupo,
-            imagen_url=imagen_url_str
+            imagen_url= imagen_url_str
         )
         db.add(db_mascota)
         db.commit()
@@ -58,7 +58,7 @@ def get_mascota_by_id(db: Session, mascota_id: int):
         print(f"¡Problema de conexión con la base de datos al buscar mascota por ID! Detalles: {e}")
         raise ConnectionError("No se pudo conectar a la base de datos.")
     except Exception as e:
-        print(f"¡Error desconocido al buscar mascota por ID {equipo_id}! Detalles: {e}")
+        print(f"¡Error desconocido al buscar mascota por ID {mascota_id}! Detalles: {e}")
         raise
 
 def update_mascota(db: Session, mascota_id: int, mascota: MascotaUpdate):
@@ -103,7 +103,7 @@ def soft_delete_mascota(db: Session, mascota_id: int):
         raise ConnectionError("No se pudo conectar a la base de datos para eliminar la mascota.")
     except Exception as e:
         db.rollback()
-        print(f"¡Error desconocido al intentar eliminar lógicamente la mascota con ID {equipo_id}! Detalles: {e}")
+        print(f"¡Error desconocido al intentar eliminar lógicamente la mascota con ID {mascota_id}! Detalles: {e}")
         raise
 
 def search_mascotas(
@@ -131,12 +131,12 @@ def search_mascotas(
                     models.Mascota.usuario_obj.has(models.Usuario.nombre.ilike(f"%{query_str}%"))
                 )
             )
-        if usuario_id:
+        if id_mascota:
             filters.append(models.Mascota.usuario_id == id_usuario)
         if nombre:
             filters.append(models.Mascota.nombre.ilike(f"%{nombre}%"))
         if tipo:
-            filters.append(models.Mascota.tipo.ilike(f"%{Tipo}%"))
+            filters.append(models.Mascota.tipo.ilike(f"%{tipo}%"))
         if raza:
             filters.append(models.Mascota.raza.ilike(f"%{raza}%"))
         if id_mascota:

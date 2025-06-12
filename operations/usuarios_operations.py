@@ -67,7 +67,7 @@ def update_usuario(db: Session, id_usuario: int, Usuario: UsuarioUpdate):
         raise ValueError("No se pudo actualizar el Usuario debido a datos inválidos o duplicados.")
     except Exception as e:
         db.rollback()
-        print(f"¡Oops! Un error inesperado ocurrió al actualizar el Usuario con ID {Usuario_id}: {e}")
+        print(f"¡Oops! Un error inesperado ocurrió al actualizar el Usuario con ID {id_usuario}: {e}")
         raise
 
 def soft_delete_usuario(db: Session, id_usuario: int):

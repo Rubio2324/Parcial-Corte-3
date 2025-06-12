@@ -19,7 +19,7 @@ class UsuarioBase(BaseModel):
 class UsuarioCreate(UsuarioBase):
     pass
 
-class UusarioUpdate(UsuarioBase):
+class UsuarioUpdate(UsuarioBase):
     eliminado_logico: bool = False
     nombre: Optional[str] = None
     edad: Optional[int] = None
