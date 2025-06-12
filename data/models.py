@@ -18,10 +18,10 @@ class UsuarioBase(BaseModel):
     edad: int
     nacionalidad: str
 
-class UsuarioCreate(JugadorBase):
+class UsuarioCreate(UsuarioBase):
     pass
 
-class UusarioUpdate(JugadorBase):
+class UusarioUpdate(UsuarioBase):
     eliminado_logico: bool = False
     nombre: Optional[str] = None
     equipo_id: Optional[int] = None
@@ -29,7 +29,7 @@ class UusarioUpdate(JugadorBase):
     nacionalidad: Optional[str] = None
 
 # --- NUEVOS ESQUEMAS PYDANTIC PARA RESPUESTAS API ---
-class UsuarioResponse(JugadorBase):
+class UsuarioResponse(UsuarioBase):
     id: int
     eliminado_logico: bool
 
@@ -42,17 +42,17 @@ class MascotaBase(BaseModel):
     raza: str
     imagen_url: Optional[HttpUrl] = None # Mantenemos la URL para la imagen del equipo
 
-class MascotaCreate(EquipoBase):
+class MascotaCreate(MascotaBase):
     pass
 
-class MascotaUpdate(EquipoBase):
+class MascotaUpdate(MascotaBase):
     eliminado_logico: bool = False
     nombre: Optional[str] = None
     tipo: Optional[str] = None
     raza: Optional[str] = None
     imagen_url: Optional[HttpUrl] = None
 
-class MascotaResponse(EquipoBase):
+class MascotaResponse(MascotaBase):
     id: int
     eliminado_logico: bool
 
@@ -66,10 +66,10 @@ class VueloBase(BaseModel):
     destino: str
     fecha: date
 
-class VueloCreate(PartidoBase):
+class VueloCreate(VueloBase):
     pass
 
-class VueloUpdate(PartidoBase):
+class VueloUpdate(VueloBase):
     usuario_id: Optional[int] = None
     mascota_id: Optional[int] = None
     origen: Optional[str] = None
@@ -77,7 +77,7 @@ class VueloUpdate(PartidoBase):
     fecha: Optional[date] = None
     eliminado_logico: bool = False
 
-class VueloResponse(PartidoBase):
+class VueloResponse(VueloBase):
     id: int
     eliminado_logico: bool
 
