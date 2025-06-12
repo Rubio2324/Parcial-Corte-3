@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Equipos{% endblock %}
+
+{% block content %}
+<h1 class="main-title">🏆 Lista de Equipos 🏆</h1>
+
+{% if error_message %}
+    <div class="message error">{{ error_message }}</div>
+{% endif %}
+
+<div class="flex-row" style="margin-bottom: 25px;"> {# Using flex-row for consistent centering #}
+    <a href="/equipos_crear" class="button success">➕ Añadir Nuevo Equipo</a>
+</div>
+
+<div class="table-container">
+    {% if equipos %}
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>País</th>
+                <th>Grupo</th>
+                <th>Imagen</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for equipo in equipos %}
+            {% if not equipo.eliminado_logico %} {# Only show if NOT logically deleted #}
+            <tr>
+                <td>{{ equipo.id }}</td>
+                <td>{{ equipo.nombre }}</td>
+                <td>{{ equipo.pais }}</td>
+                <td>{{ equipo.grupo }}</td>
+                <td>
+                    {% if equipo.imagen_url %}
+                        {# Display team image, with a local placeholder if URL fails #}
+                        <img src="{{ equipo.imagen_url }}" alt="Logo de {{ equipo.nombre }}" onerror="this.onerror=null;this.src='/static/images/placeholder_team_small.png';">
+                    {% else %}
+                        {# Display a local placeholder image if no URL is provided #}
+                        <img src="/static/images/placeholder_team_small.png" alt="Sin imagen">
+                    {% endif %}
+                </td>
+                <td class="flex-row action-buttons-cell"> {# Added a class for potential specific styling #}
+                    <a href="/equipos/{{ equipo.id }}" class="button primary small-button">Ver</a>
+                    <a href="/equipos_editar/{{ equipo.id }}" class="button warning small-button">Editar</a>
+                    <form action="/equipos_eliminar/{{ equipo.id }}" method="post" onsubmit="return confirm('¿Estás seguro de que quieres eliminar lógicamente a este equipo? Esta acción puede revertirse si es necesario.');" style="display: inline;">
+                        <button type="submit" class="button danger small-button">Eliminar</button>
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="no-data-message">No hay equipos registrados. ¡Sé el primero en añadir uno!</p>
+    {% endif %}
+</div>
+{% endblock %}

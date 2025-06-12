@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Lista de Jugadores{% endblock %}
+
+{% block content %}
+<h1 class="main-title">⚽ Jugadores de la Champions League 2017/18 ⚽</h1>
+
+{% if error_message %}
+    <div class="message error">{{ error_message }}</div>
+{% endif %}
+{% if success_message %}
+    <div class="message success">{{ success_message }}</div>
+{% endif %}
+
+<div class="flex-row"> {# La clase flex-row ya centra, no necesitamos flex-end #}
+    <a href="/jugadores_crear" class="button success">➕ Añadir Nuevo Jugador</a> {# Botón 'success' para añadir y emoji #}
+</div>
+
+{% if jugadores %}
+<div class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Equipo</th>
+                <th>Posición</th>
+                <th>Nacionalidad</th>
+                <th>Edad</th>
+                <th>Goles</th>
+                <th>Asistencias</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for jugador in jugadores %}
+            {% if not jugador.eliminado_logico %} {# ¡Importante! Solo mostrar si NO está eliminado lógicamente #}
+            <tr>
+                <td>{{ jugador.id }}</td>
+                <td>{{ jugador.nombre }}</td>
+                <td>
+                    {% if jugador.equipo_obj %}
+                        <a href="/equipos/{{ jugador.equipo_obj.id }}" class="text-link">{{ jugador.equipo_obj.nombre }}</a>
+                    {% else %}
+                        <span class="status-danger">Sin Equipo</span> {# Mensaje más claro #}
+                    {% endif %}
+                </td>
+                <td>{{ jugador.posicion }}</td>
+                <td>{{ jugador.nacionalidad }}</td>
+                <td>{{ jugador.edad }}</td>
+                <td>{{ jugador.goles }}</td>
+                <td>{{ jugador.asistencias }}</td>
+                <td class="flex-row action-buttons-cell"> {# Mantiene flex-row para los botones de acción #}
+                    <a href="/jugadores/{{ jugador.id }}" class="button primary small-button">🔍 Ver</a> {# Emoji #}
+                    <a href="/jugadores_editar/{{ jugador.id }}" class="button warning small-button">✏️ Editar</a> {# Emoji #}
+                    <form action="/jugadores_eliminar/{{ jugador.id }}" method="post" onsubmit="return confirm('¿Estás seguro de que quieres eliminar lógicamente a este jugador? Esta acción puede revertirse si es necesario.');" style="display: inline;">
+                        <button type="submit" class="button danger small-button">🗑️ Eliminar</button> {# Emoji #}
+                    </form>
+                </td>
+            </tr>
+            {% endif %}
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+    <p class="no-data-message">No hay jugadores registrados o activos. ¡Añade uno!</p>
+{% endif %}
+{% endblock %}

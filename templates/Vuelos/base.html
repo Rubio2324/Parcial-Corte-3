@@ -1,0 +1,100 @@
+a
+    <main class="container">
+        {% block content %}{% endblock %} {# Aquí se insertará el contenido específico de cada página #}
+    </main>
+
+    <footer>
+        <p>&copy; 2025 Proyecto Champions League - Desarrollado con pasión por el fútbol. ✨</p>
+    </footer>
+
+    {% block scripts_extra %}{% endblock %} {# Bloque para JS adicional por página #}
+
+    <style>
+        /* Estilos para el menú desplegable (dropdown) */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--secondary-color);
+            min-width: 180px; /* Ancho mínimo para el dropdown */
+            box-shadow: var(--shadow-md); /* Usar variable CSS para la sombra */
+            z-index: 1;
+            border-radius: var(--border-radius); /* Bordes redondeados */
+            overflow: hidden; /* Asegura que los bordes redondeados se apliquen a los enlaces */
+            top: 100%; /* Posiciona justo debajo del botón */
+            left: 50%;
+            transform: translateX(-50%); /* Centra el dropdown bajo el botón */
+            animation: fadeIn 0.3s ease-out; /* Animación de aparición */
+            border: 1px solid var(--border-color); /* Borde sutil */
+        }
+
+        .dropdown-content a {
+            color: var(--light-text-color);
+            padding: 12px 18px;
+            text-decoration: none;
+            display: block;
+            text-align: left;
+            font-weight: normal; /* Sobreescribe el bold de nav ul li a */
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .dropdown-content a:hover {
+            background-color: var(--primary-color);
+            color: var(--accent-color);
+        }
+
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+
+        /* Animación de aparición */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px) translateX(-50%); }
+            to { opacity: 1; transform: translateY(0) translateX(-50%); }
+        }
+
+        /* Estilos para enlaces de iconos pequeños en la navegación */
+        .small-icon-link {
+            padding: 8px 12px; /* Ajustar padding */
+            font-size: 0.95em; /* Reducir tamaño de fuente ligeramente */
+            display: flex; /* Para alinear el emoji y el texto */
+            align-items: center;
+            gap: 5px; /* Espacio entre el emoji y el texto */
+        }
+
+        /* Media query para ocultar texto en móviles y mostrar solo iconos */
+        @media (max-width: 768px) {
+            nav ul li a:not(.dropbtn) { /* Afecta a todos los enlaces excepto el del dropdown */
+                font-size: 0.85em; /* Un poco más pequeño para caber */
+                padding: 10px 8px; /* Ajuste de padding */
+                text-align: center; /* Centrar el texto en móviles */
+                display: flex;
+                flex-direction: column; /* Icono arriba, texto abajo */
+                align-items: center;
+                gap: 2px; /* Espacio más pequeño entre icono y texto */
+            }
+
+            /* Para los "small-icon-link", solo mostramos el emoji/icono en móviles */
+            .small-icon-link {
+                font-size: 1.2em; /* Haz el emoji más grande */
+                padding: 10px 10px; /* Padding para que el icono se vea bien */
+            }
+            .small-icon-link span { /* Ocultar el texto en el small-icon-link en móviles */
+                display: none;
+            }
+            /* Asegúrate de que los emojis directamente en <a> se vean bien en móviles */
+            nav ul li a:not(.small-icon-link):not(.dropbtn) {
+                white-space: nowrap; /* Evita que el texto se rompa en varias líneas */
+            }
+        }
+        /* Ajuste específico para evitar que los emojis se separen del texto en ciertos navegadores */
+        nav ul li a {
+            white-space: nowrap;
+        }
+    </style>
+</body>
+</html>

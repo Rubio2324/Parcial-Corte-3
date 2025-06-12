@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Detalle del Equipo - {{ equipo.nombre }}{% endblock %}
+
+{% block content %}
+<h1 class="main-title">🏰 Detalles del Equipo: {{ equipo.nombre }} 🏰</h1>
+
+<div class="detail-card">
+    <div class="detail-image-container">
+        {% if equipo.imagen_url %}
+            {# Muestra la imagen del equipo con un fallback si la URL no funciona #}
+            <img src="{{ equipo.imagen_url }}" alt="Logo del Equipo {{ equipo.nombre }}" onerror="this.onerror=null;this.src='/static/images/placeholder_team.png';" class="detail-img">
+        {% else %}
+            {# Mensaje si no hay URL de imagen, mostrado dentro del contenedor de imagen #}
+            <img src="/static/images/placeholder_team.png" alt="Imagen no disponible" class="detail-img">
+            <p class="no-data-message">No hay imagen definida.</p>
+        {% endif %}
+    </div>
+
+    <div class="detail-info">
+        <p><strong>ID:</strong> {{ equipo.id }}</p>
+        <p><strong>País:</strong> {{ equipo.pais }}</p>
+        <p><strong>Grupo:</strong> {{ equipo.grupo }}</p>
+        {# Muestra el estado de eliminado lógicamente con el color adecuado #}
+        <p><strong>Estado (Eliminado Lógicamente):</strong> <span class="status-{{ 'danger' if equipo.eliminado_logico else 'success' }}">{{ "Sí" if equipo.eliminado_logico else "No" }}</span></p>
+    </div>
+
+    <h2 style="margin-top: 40px;">Jugadores del Equipo:</h2>
+    {% if equipo.jugadores %}
+        <ul class="player-list">
+            {% for jugador in equipo.jugadores %}
+                {# Solo muestra jugadores que NO están eliminados lógicamente #}
+                {% if not jugador.eliminado_logico %}
+                <li>
+                    <a href="/jugadores/{{ jugador.id }}" class="text-link">
+                        {{ jugador.nombre }} ({{ jugador.posicion }})
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p class="no-data-message">No hay jugadores registrados para este equipo.</p>
+    {% endif %}
+
+    <div class="flex-row detail-actions">
+        <a href="/equipos_lista" class="button primary">← Volver a la Lista</a>
+        <a href="/equipos_editar/{{ equipo.id }}" class="button warning">✏️ Editar Equipo</a>
+        {# Formulario para eliminación lógica con confirmación al usuario #}
+        <form action="/equipos_eliminar/{{ equipo.id }}" method="post" onsubmit="return confirm('¿Estás seguro de que quieres eliminar lógicamente a este equipo? Esta acción puede revertirse si es necesario.');" style="display: inline;">
+            <button type="submit" class="button danger">🗑️ Eliminar (Lógico)</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

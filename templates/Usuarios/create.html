@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Crear Nuevo Usuario{% endblock %}
+
+{% block content %}
+<h1 class="main-title">✨ Crear Nuevo Usuario ✨</h1>
+
+{% if error_message %}
+    <div class="message error">{{ error_message }}</div>
+{% endif %}
+
+<form action="/Usuario_crear" method="post">
+    <div class="form-group">
+        <label for="nombre">Nombre del Usuario:</label>
+        <input type="text" id="nombre" name="nombre" required placeholder="Ej: Lionel Messi">
+    </div>
+    <div class="form-group">
+        <label for="mascota_id">Equipo:</label>
+        <select id="mascota_id" name="mascota_id" required>
+            <option value="">Selecciona un equipo</option>
+            {% for equipo in equipos %}
+                {% if not equipo.eliminado_logico %} {# Solo mostrar equipos NO eliminados lógicamente #}
+                    <option value="{{ equipo.id }}">{{ equipo.nombre }} ({{ equipo.pais }})</option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="posicion">Posición:</label>
+        <input type="text" id="posicion" name="posicion" required placeholder="Ej: Delantero, Centrocampista">
+    </div>
+    <div class="form-group">
+        <label for="edad">Edad:</label>
+        <input type="number" id="edad" name="edad" required min="15" max="50" placeholder="Ej: 28">
+    </div>
+    <div class="form-group">
+        <label for="nacionalidad">Nacionalidad:</label>
+        <input type="text" id="nacionalidad" name="nacionalidad" required placeholder="Ej: Argentina">
+    </div>
+    <div class="form-group">
+        <label for="goles">Goles (opcional):</label>
+        <input type="number" id="goles" name="goles" value="0" min="0" placeholder="Ej: 50">
+    </div>
+    <div class="form-group">
+        <label for="asistencias">Asistencias (opcional):</label>
+        <input type="number" id="asistencias" name="asistencias" value="0" min="0" placeholder="Ej: 25">
+    </div>
+    {# Se mantiene la exclusión del campo de imagen_url para jugadores, según tu comentario #}
+    <div class="flex-row">
+        <button type="submit" class="button success">✔️ Crear Jugador</button> {# Icono cambiado a emoji #}
+        <a href="/jugadores_lista" class="button primary">↩️ Cancelar</a> {# Icono cambiado a emoji y botón a 'primary' #}
+    </div>
+</form>
+{% endblock %}

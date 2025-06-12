@@ -49,7 +49,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
-# Montar el directorio estático para servir CSS, JS, imágenes, etc.
+# Montar el directorio estático para servir css, JS, imágenes, etc.
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Incluir los routers de las páginas HTML

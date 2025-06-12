@@ -1,0 +1,209 @@
+{% extends "base.html" %}
+
+{% block title %}Historial de Eliminados{% endblock %}
+
+{% block content %}
+<h1 class="main-title">🗑️ Historial de Elementos Eliminados Lógicamente 🚫</h1>
+<p class="section-description">
+    Aquí puedes ver los jugadores, equipos y partidos que han sido marcados como eliminados lógicamente del sistema. Estos elementos no aparecen en las listas principales, pero pueden ser gestionados aquí si es necesario.
+</p>
+
+<section class="info-section deleted-items-section">
+    <h2 class="section-title-with-border">Jugadores Eliminados 👤</h2> {# Added emoji #}
+    {% if deleted_jugadores %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Equipo</th>
+                    <th>Posición</th>
+                    <th>Nacionalidad</th>
+                    <th>Estado</th>
+                    {# <th>Acciones</th> #} {# Placeholder for a future "restore" action #}
+                </tr>
+            </thead>
+            <tbody>
+                {% for jugador in deleted_jugadores %}
+                <tr>
+                    <td>{{ jugador.id }}</td>
+                    <td>{{ jugador.nombre }}</td>
+                    <td>
+                        {% if jugador.equipo_obj %}
+                            <a href="/equipos/{{ jugador.equipo_obj.id }}" class="text-link">{{ jugador.equipo_obj.nombre }}</a>
+                        {% else %}
+                            <span class="status-info">Sin Equipo Registrado</span> {# More specific message #}
+                        {% endif %}
+                    </td>
+                    <td>{{ jugador.posicion }}</td>
+                    <td>{{ jugador.nacionalidad }}</td>
+                    <td><span class="status-danger">Eliminado Lógicamente</span></td>
+                    {# <td><button class="button success small-button">Restaurar</button></td> #} {# Placeholder for a future "restore" action #}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="no-data-message">No hay **jugadores** eliminados lógicamente en el historial.</p>
+    {% endif %}
+</section>
+
+<section class="info-section deleted-items-section">
+    <h2 class="section-title-with-border">Equipos Eliminados 🛡️</h2> {# Added emoji #}
+    {% if deleted_equipos %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>País</th>
+                    <th>Grupo</th>
+                    <th>Logo</th> {# Changed header to "Logo" #}
+                    <th>Estado</th>
+                    {# <th>Acciones</th> #} {# Placeholder for a future "restore" action #}
+                </tr>
+            </thead>
+            <tbody>
+                {% for equipo in deleted_equipos %}
+                <tr>
+                    <td>{{ equipo.id }}</td>
+                    <td>{{ equipo.nombre }}</td>
+                    <td>{{ equipo.pais }}</td>
+                    <td>{{ equipo.grupo }}</td>
+                    <td>
+                        {# Use the same robust image handling as in other templates #}
+                        <img src="{{ equipo.imagen_url if equipo.imagen_url else '/static/images/placeholder_team_small.png' }}"
+                             alt="Logo de {{ equipo.nombre if equipo.nombre else 'Equipo Desconocido' }}"
+                             class="team-logo"
+                             onerror="this.onerror=null;this.src='/static/images/placeholder_team_small.png';">
+                    </td>
+                    <td><span class="status-danger">Eliminado Lógicamente</span></td>
+                    {# <td><button class="button success small-button">Restaurar</button></td> #} {# Placeholder for a future "restore" action #}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="no-data-message">No hay **equipos** eliminados lógicamente en el historial.</p>
+    {% endif %}
+</section>
+
+<section class="info-section deleted-items-section">
+    <h2 class="section-title-with-border">Partidos Eliminados 🗓️</h2> {# Added emoji #}
+    {% if deleted_partidos %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Equipo Local</th>
+                    <th>Equipo Visitante</th>
+                    <th>Marcador</th>
+                    <th>Fecha</th>
+                    <th>Fase</th>
+                    <th>Estado</th>
+                    {# <th>Acciones</th> #} {# Placeholder for a future "restore" action #}
+                </tr>
+            </thead>
+            <tbody>
+                {% for partido in deleted_partidos %}
+                <tr>
+                    <td>{{ partido.id }}</td>
+                    <td>
+                        {% if partido.equipo_local_obj %}
+                            <a href="/equipos/{{ partido.equipo_local_obj.id }}" class="text-link">{{ partido.equipo_local_obj.nombre }}</a>
+                        {% else %}
+                            <span class="status-info">Equipo No Disp.</span> {# More specific message #}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if partido.equipo_visitante_obj %}
+                            <a href="/equipos/{{ partido.equipo_visitante_obj.id }}" class="text-link">{{ partido.equipo_visitante_obj.nombre }}</a>
+                        {% else %}
+                            <span class="status-info">Equipo No Disp.</span> {# More specific message #}
+                        {% endif %}
+                    </td>
+                    <td class="result-score-history">
+                        <strong>{{ partido.goles_local }}</strong> - <strong>{{ partido.goles_visitante }}</strong>
+                    </td>
+                    <td>{{ partido.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ partido.fase }}</td>
+                    <td><span class="status-danger">Eliminado Lógicamente</span></td>
+                    {# <td><button class="button success small-button">Restaurar</button></td> #} {# Placeholder for a future "restore" action #}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p class="no-data-message">No hay **partidos** eliminados lógicamente en el historial.</p>
+    {% endif %}
+</section>
+
+<style>
+    /* Estilos adicionales específicos para esta página */
+    .section-description {
+        text-align: center;
+        font-size: 1.1em;
+        color: var(--text-color-light); /* Un color más suave para la descripción */
+        margin-bottom: 40px;
+        max-width: 800px; /* Limitar el ancho para legibilidad */
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    .deleted-items-section h2 {
+        /* Already handled by .section-title-with-border */
+    }
+
+    /* Override for team-logo in history, if it needs to be different than main lists */
+    .deleted-items-section .team-logo {
+        width: 35px; /* Slightly larger in history for clarity */
+        height: 35px;
+        object-fit: contain;
+        border-radius: 50%;
+        border: 1px solid var(--border-color-dark); /* Darker border for deleted items */
+        opacity: 0.7; /* Make them slightly faded */
+    }
+
+    /* Style for the result score in history table */
+    .result-score-history {
+        font-size: 1em; /* Smaller than main list for space */
+        font-weight: bold;
+        color: var(--text-color-dark);
+        text-align: center;
+    }
+    .result-score-history strong {
+        font-family: 'Arial Black', sans-serif;
+    }
+
+    .status-info { /* New class for "Equipo No Disp." or "Sin Equipo Registrado" */
+        background-color: var(--info-background); /* Define this in your style.css if not already */
+        color: var(--info-color); /* Define this in your style.css if not already */
+        padding: 4px 8px;
+        border-radius: var(--border-radius-sm);
+        font-size: 0.85em;
+        font-weight: bold;
+        white-space: nowrap;
+    }
+
+    .no-data-message {
+        color: var(--text-color-light);
+        font-style: italic;
+        text-align: center;
+        padding: 20px;
+        background-color: var(--background-light);
+        border-radius: var(--border-radius);
+        margin-top: 20px;
+        box-shadow: var(--shadow-sm);
+    }
+    .no-data-message strong {
+        color: var(--primary-color);
+    }
+</style>
+{% endblock %}

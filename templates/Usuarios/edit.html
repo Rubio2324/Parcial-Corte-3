@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Jugador - {{ jugador.nombre }}{% endblock %}
+
+{% block content %}
+<h1 class="main-title">✏️ Editar Jugador: {{ jugador.nombre }} ✏️</h1>
+
+{% if error_message %}
+    <div class="message error">{{ error_message }}</div>
+{% endif %}
+
+<form action="/jugadores_editar/{{ jugador.id }}" method="post">
+    <div class="form-group">
+        <label for="nombre">Nombre del Jugador:</label>
+        <input type="text" id="nombre" name="nombre" value="{{ jugador.nombre }}" required placeholder="Ej: Kylian Mbappé">
+    </div>
+    <div class="form-group">
+        <label for="equipo_id">Equipo:</label>
+        <select id="equipo_id" name="equipo_id" required>
+            <option value="">Selecciona un equipo</option>
+            {% for equipo in equipos %}
+                {% if not equipo.eliminado_logico %} {# Solo mostrar equipos NO eliminados lógicamente #}
+                    <option value="{{ equipo.id }}" {% if equipo.id == jugador.equipo_id %}selected{% endif %}>
+                        {{ equipo.nombre }} ({{ equipo.pais }})
+                    </option>
+                {% endif %}
+            {% endfor %}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="posicion">Posición:</label>
+        <input type="text" id="posicion" name="posicion" value="{{ jugador.posicion }}" required placeholder="Ej: Delantero Centro">
+    </div>
+    <div class="form-group">
+        <label for="edad">Edad:</label>
+        <input type="number" id="edad" name="edad" value="{{ jugador.edad }}" required min="15" max="50" placeholder="Ej: 25">
+    </div>
+    <div class="form-group">
+        <label for="nacionalidad">Nacionalidad:</label>
+        <input type="text" id="nacionalidad" name="nacionalidad" value="{{ jugador.nacionalidad }}" required placeholder="Ej: Francesa">
+    </div>
+    <div class="form-group">
+        <label for="goles">Goles:</label>
+        <input type="number" id="goles" name="goles" value="{{ jugador.goles }}" min="0" placeholder="Ej: 30">
+    </div>
+    <div class="form-group">
+        <label for="asistencias">Asistencias:</label>
+        <input type="number" id="asistencias" name="asistencias" value="{{ jugador.asistencias }}" min="0" placeholder="Ej: 15">
+    </div>
+    {# Se mantiene la exclusión del campo de imagen_url para jugadores, según tu comentario #}
+    <div class="form-group">
+        {# El label for el checkbox debe estar DESPUÉS del input para que el estilo "display: inline;" sea efectivo #}
+        <input type="checkbox" id="eliminado_logico" name="eliminado_logico" {% if jugador.eliminado_logico %}checked{% endif %}>
+        <label for="eliminado_logico" style="display: inline-block; margin-left: 5px;">Eliminar Lógicamente (ocultar de las listas)</label>
+        <small style="display: block; margin-top: 5px;">Al marcar, este jugador no aparecerá en las listas principales.</small>
+    </div>
+    <div class="flex-row">
+        <button type="submit" class="button success">💾 Guardar Cambios</button> {# Icono cambiado a emoji #}
+        <a href="/jugadores/{{ jugador.id }}" class="button primary">↩️ Cancelar</a> {# Icono cambiado a emoji y clase a 'primary' #}
+    </div>
+</form>
+{% endblock %}

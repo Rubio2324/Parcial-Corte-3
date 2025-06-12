@@ -1,0 +1,337 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio - Champions League Project{% endblock %}
+
+{% block content %}
+<h1 class="main-title">👋 Bienvenido al Centro de Datos de la Champions League 2017/18 🏟️</h1>
+
+<p class="section-description">
+    Explora equipos, jugadores y partidos de una de las temporadas más emocionantes de la historia del fútbol europeo. ¡Sumérgete en los datos y revive la pasión del torneo!
+</p>
+
+<section class="info-section highlight-section"> {# Agregada info-section para estilos base #}
+    <h2 class="section-title-with-border">🌟 Equipos Destacados 🌟</h2> {# Usar clase global #}
+    <div class="card-grid">
+        {% for equipo in equipos %}
+        {% if not equipo.eliminado_logico %} {# Solo mostrar equipos NO eliminados lógicamente #}
+        <div class="card team-card"> {# Nueva clase para tarjetas de equipo #}
+            {# Lógica robusta para imagen: si no hay URL, usa placeholder local #}
+            <img src="{{ equipo.imagen_url if equipo.imagen_url else '/static/images/placeholder_team.png' }}"
+                 alt="Logo de {{ equipo.nombre }}"
+                 class="card-img"
+                 onerror="this.onerror=null;this.src='/static/images/placeholder_team.png';">
+            <div class="card-content">
+                <h3>{{ equipo.nombre }}</h3>
+                <p>País: {{ equipo.pais }} 🌍</p> {# Emoji #}
+                <p>Grupo: {{ equipo.grupo }}</p>
+                <a href="/equipos/{{ equipo.id }}" class="button primary small-button">Ver Detalles ➡️</a> {# Emoji #}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <p class="no-data-message">No hay equipos destacados para mostrar. ¡Añade algunos!</p>
+        {% endfor %}
+    </div>
+    <div class="flex-row view-all-link"> {# Nueva clase para el div del enlace #}
+        <a href="/equipos_lista" class="button secondary">Ver Todos los Equipos ➡️</a> {# Emoji #}
+    </div>
+</section>
+
+<section class="info-section highlight-section"> {# Agregada info-section para estilos base #}
+    <h2 class="section-title-with-border">🗓️ Partidos Recientes 🗓️</h2> {# Usar clase global #}
+    <div class="table-container compact-table-container"> {# Nueva clase para tabla compacta #}
+        <table>
+            <thead>
+                <tr>
+                    <th>Fecha</th>
+                    <th>Fase</th>
+                    <th>Equipo Local</th>
+                    <th>Resultado</th>
+                    <th>Equipo Visitante</th>
+                    <th>Detalles</th> {# Nueva columna para ver partido #}
+                </tr>
+            </thead>
+            <tbody>
+                {% for partido in partidos %}
+                {% if not partido.eliminado_logico %} {# Solo mostrar partidos NO eliminados lógicamente #}
+                <tr>
+                    <td>{{ partido.fecha.strftime('%d/%m/%Y') }}</td>
+                    <td>{{ partido.fase }}</td>
+                    <td>
+                        {% if partido.equipo_local_obj %}
+                            <a href="/equipos/{{ partido.equipo_local_obj.id }}" class="text-link team-display">
+                                <img src="{{ partido.equipo_local_obj.imagen_url if partido.equipo_local_obj.imagen_url else '/static/images/placeholder_team_small.png' }}"
+                                     alt="Logo de {{ partido.equipo_local_obj.nombre }}"
+                                     class="team-logo"
+                                     onerror="this.onerror=null;this.src='/static/images/placeholder_team_small.png';">
+                                {{ partido.equipo_local_obj.nombre }}
+                            </a>
+                        {% else %}
+                            <span class="status-info">Equipo No Disp.</span> {# Mensaje consistente #}
+                        {% endif %}
+                    </td>
+                    <td class="result-score-highlight"> {# Nueva clase para estilo de resultado #}
+                        <strong>{{ partido.goles_local }}</strong> - <strong>{{ partido.goles_visitante }}</strong>
+                    </td>
+                    <td>
+                        {% if partido.equipo_visitante_obj %}
+                            <a href="/equipos/{{ partido.equipo_visitante_obj.id }}" class="text-link team-display">
+                                <img src="{{ partido.equipo_visitante_obj.imagen_url if partido.equipo_visitante_obj.imagen_url else '/static/images/placeholder_team_small.png' }}"
+                                     alt="Logo de {{ partido.equipo_visitante_obj.nombre }}"
+                                     class="team-logo"
+                                     onerror="this.onerror=null;this.src='/static/images/placeholder_team_small.png';">
+                                {{ partido.equipo_visitante_obj.nombre }}
+                            </a>
+                        {% else %}
+                            <span class="status-info">Equipo No Disp.</span> {# Mensaje consistente #}
+                        {% endif %}
+                    </td>
+                    <td>
+                        {# Aunque no hay página de detalles de partido por ID, el enlace a la lista es un buen CTA #}
+                        <a href="/partidos_lista" class="button primary small-button">Ver Partido ➡️</a>
+                    </td>
+                </tr>
+                {% endif %}
+                {% else %}
+                <p class="no-data-message">No hay partidos recientes para mostrar. ¡Registra algunos!</p>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="flex-row view-all-link"> {# Nueva clase para el div del enlace #}
+        <a href="/partidos_lista" class="button secondary">Ver Todos los Partidos ➡️</a> {# Emoji #}
+    </div>
+</section>
+
+<section class="info-section highlight-section"> {# Agregada info-section para estilos base #}
+    <h2 class="section-title-with-border">🏃 Jugadores Recientes 🏃</h2> {# Usar clase global #}
+    <div class="card-grid">
+        {% for jugador in jugadores %}
+        {% if not jugador.eliminado_logico %} {# Solo mostrar jugadores NO eliminados lógicamente #}
+        <div class="card player-card"> {# Nueva clase para tarjetas de jugador #}
+            <div class="card-content">
+                <h3>{{ jugador.nombre }}</h3>
+                <p>Equipo:
+                    {% if jugador.equipo_obj %}
+                        <a href="/equipos/{{ jugador.equipo_obj.id }}" class="text-link team-name-small">
+                            {{ jugador.equipo_obj.nombre }} <img src="{{ jugador.equipo_obj.imagen_url if jugador.equipo_obj.imagen_url else '/static/images/placeholder_team_small.png' }}" alt="Logo de {{ jugador.equipo_obj.nombre }}" class="team-logo-small" onerror="this.onerror=null;this.src='/static/images/placeholder_team_small.png';">
+                        </a>
+                    {% else %}
+                        <span class="status-info">Sin Equipo Registrado</span>
+                    {% endif %}
+                </p>
+                <p>Posición: {{ jugador.posicion }} ⚽</p> {# Emoji #}
+                <p>Nacionalidad: {{ jugador.nacionalidad }}</p>
+                <p>Edad: {{ jugador.edad }}</p>
+                <a href="/jugadores/{{ jugador.id }}" class="button primary small-button">Ver Detalles ➡️</a> {# Emoji #}
+            </div>
+        </div>
+        {% endif %}
+        {% else %}
+        <p class="no-data-message">No hay jugadores recientes para mostrar. ¡Añade algunos!</p>
+        {% endfor %}
+    </div>
+    <div class="flex-row view-all-link"> {# Nueva clase para el div del enlace #}
+        <a href="/jugadores_lista" class="button secondary">Ver Todos los Jugadores ➡️</a> {# Emoji #}
+    </div>
+</section>
+
+<style>
+    /* Estilos generales para las secciones destacadas en el inicio */
+    .section-description {
+        text-align: center;
+        font-size: 1.1em;
+        color: var(--text-color-light);
+        margin-bottom: 40px;
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+    }
+
+    .highlight-section {
+        margin-bottom: 60px;
+        padding: 30px;
+        background-color: var(--card-background); /* Fondo de la sección */
+        border-radius: var(--border-radius-lg); /* Bordes más redondeados */
+        box-shadow: var(--shadow-lg); /* Sombra más pronunciada */
+        text-align: center;
+        transition: transform 0.3s ease; /* Animación al pasar el ratón */
+    }
+    .highlight-section:hover {
+        transform: translateY(-5px); /* Efecto de elevación */
+    }
+
+    /* Títulos de sección ya manejados por .section-title-with-border en global CSS */
+    /* .highlight-section h2 { ... } */
+
+    /* Card Grid para equipos y jugadores */
+    .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid */
+        gap: 30px; /* Espacio entre tarjetas */
+        margin-top: 30px;
+        margin-bottom: 40px;
+        justify-content: center;
+        padding: 10px;
+    }
+
+    .card {
+        background-color: var(--background-color); /* Fondo de la tarjeta */
+        border-radius: var(--border-radius-md); /* Bordes de tarjeta */
+        box-shadow: var(--shadow-md); /* Sombra de tarjeta */
+        overflow: hidden; /* Asegura que la imagen no se desborde */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        padding-bottom: 15px; /* Espacio extra al final de la tarjeta */
+    }
+    .card:hover {
+        transform: translateY(-8px); /* Efecto de elevación al pasar el ratón */
+        box-shadow: var(--shadow-lg-hover); /* Sombra más intensa al pasar el ratón */
+    }
+
+    .card-img {
+        width: 100%; /* La imagen ocupa todo el ancho de la tarjeta */
+        height: 180px; /* Altura fija para la imagen */
+        object-fit: cover; /* Recorta la imagen para cubrir el área */
+        border-bottom: 3px solid var(--accent-color); /* Borde debajo de la imagen */
+    }
+
+    .card-content {
+        padding: 15px 20px; /* Padding ajustado */
+        text-align: center;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        width: 100%;
+    }
+    .card-content h3 {
+        font-size: 1.6em; /* Un poco más grande */
+        margin-top: 10px;
+        margin-bottom: 10px;
+        color: var(--primary-color); /* Color principal */
+    }
+    .card-content p {
+        font-size: 1em; /* Ajuste de fuente */
+        color: var(--text-color);
+        margin-bottom: 8px; /* Más espacio entre párrafos */
+    }
+    .card .button {
+        margin-top: 15px;
+        align-self: center;
+        width: calc(100% - 30px); /* Ocupa casi todo el ancho */
+        max-width: 200px; /* Límite de ancho para botones */
+    }
+
+    /* Estilos específicos para la tabla de partidos en el inicio */
+    .highlight-section .table-container {
+        box-shadow: var(--shadow-md); /* Sombra a la tabla */
+        border-radius: var(--border-radius);
+        overflow: hidden; /* Asegura que la tabla respete el borde redondeado */
+        margin-bottom: 40px; /* Espacio debajo de la tabla */
+    }
+    .highlight-section table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    .highlight-section table th {
+        background-color: var(--primary-color);
+        color: var(--light-text-color);
+        padding: 15px 10px;
+        text-align: left;
+        font-size: 0.95em;
+    }
+    .highlight-section table td {
+        padding: 12px 10px;
+        border-bottom: 1px solid var(--border-color);
+        vertical-align: middle;
+        text-align: left;
+        color: var(--text-color);
+    }
+    .highlight-section table tbody tr:nth-child(even) {
+        background-color: var(--background-light); /* Fondo alterno para filas */
+    }
+    .highlight-section table tbody tr:hover {
+        background-color: var(--hover-background); /* Efecto hover en filas */
+    }
+
+    /* Ajustes para elementos dentro de la tabla */
+    .team-display {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: bold;
+        color: var(--text-color);
+        text-decoration: none; /* Asegurar que no haya subrayado si es un <a> */
+    }
+    .team-logo {
+        width: 30px;
+        height: 30px;
+        object-fit: contain;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-xs); /* Sombra sutil para logos */
+    }
+    .result-score-highlight {
+        font-size: 1.3em; /* Un poco más grande para el resultado */
+        font-weight: bolder;
+        color: var(--accent-color); /* Color de acento para el score */
+        text-align: center;
+        white-space: nowrap; /* Evita que el marcador se rompa */
+        background-color: var(--background-color); /* Fondo de score */
+        padding: 5px 10px;
+        border-radius: var(--border-radius-sm);
+        box-shadow: var(--shadow-xs);
+    }
+    .result-score-highlight strong {
+        font-family: 'Arial Black', sans-serif;
+        letter-spacing: 0.5px;
+    }
+
+    /* Enlaces "Ver Todos los..." */
+    .view-all-link {
+        margin-top: 20px;
+        justify-content: center; /* Centrar el botón */
+    }
+    .view-all-link .button.secondary {
+        font-size: 1.1em;
+        padding: 12px 25px;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    /* Jugadores en las tarjetas */
+    .team-name-small {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        text-decoration: none;
+        color: var(--text-color-dark); /* Color del nombre del equipo en jugador */
+    }
+    .team-logo-small {
+        width: 20px;
+        height: 20px;
+        object-fit: contain;
+        border-radius: 50%;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-xs);
+    }
+
+    /* Mensajes de "No hay datos" */
+    .no-data-message {
+        text-align: center;
+        font-size: 1.1em;
+        color: var(--text-color-light);
+        margin-top: 30px;
+        padding: 20px;
+        background-color: var(--background-light);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-sm);
+        font-style: italic;
+    }
+</style>
+{% endblock %}
