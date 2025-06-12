@@ -13,8 +13,6 @@ Base = declarative_base()
 
 class UsuarioBase(BaseModel):
     nombre: str
-    mascota_id: int
-    vuelo_id : int
     edad: int
     nacionalidad: str
 
@@ -24,7 +22,6 @@ class UsuarioCreate(UsuarioBase):
 class UusarioUpdate(UsuarioBase):
     eliminado_logico: bool = False
     nombre: Optional[str] = None
-    equipo_id: Optional[int] = None
     edad: Optional[int] = None
     nacionalidad: Optional[str] = None
 
@@ -48,6 +45,7 @@ class MascotaCreate(MascotaBase):
 class MascotaUpdate(MascotaBase):
     eliminado_logico: bool = False
     nombre: Optional[str] = None
+    id_usuario : Optional [int] = None
     tipo: Optional[str] = None
     raza: Optional[str] = None
     imagen_url: Optional[HttpUrl] = None
@@ -60,8 +58,6 @@ class MascotaResponse(MascotaBase):
         from_attributes = True
 
 class VueloBase(BaseModel):
-    id_usuario: int
-    id_mascota: int
     origen : str
     destino: str
     fecha: date
@@ -70,8 +66,7 @@ class VueloCreate(VueloBase):
     pass
 
 class VueloUpdate(VueloBase):
-    usuario_id: Optional[int] = None
-    mascota_id: Optional[int] = None
+    id_usuario: Optional[int] = None
     origen: Optional[str] = None
     destino: Optional[str] = None
     fecha: Optional[date] = None
@@ -90,8 +85,6 @@ class Usuario(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String, index=True)
-    mascota_id = Column(Integer, ForeignKey("mascota.id"))
-    vuelo_id = Column(Integer, ForeignKey("vuelo.id"))
     edad = Column(Integer)
     nacionalidad = Column(String)
     eliminado_logico = Column(Boolean, default=False)
@@ -107,28 +100,24 @@ class Mascota(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String, unique=True, index=True)
+    id_usuario = Column(Integer, ForeignKey("usuario.id"))
     tipo = Column(String)
     raza = Column(String)
     imagen_url = Column(String, nullable=True) # Almacenamos la URL como String
     eliminado_logico = Column(Boolean, default=False)
 
     usuario = relationship("Usuario", back_populates="mascota_obj")
-    vuelo_obj = relationship("Vuelo", back_populates="mascota_obj")
-
-    # No necesitamos Config aquí para el modelo ORM.
 
 class Vuelo(Base):
     __tablename__ = "Vuelos"
 
     id = Column(Integer, primary_key=True, index=True)
-    usuario_id = Column(Integer, ForeignKey("usuario.id"))
-    mascota_id = Column(Integer, ForeignKey("mascota.id"))
+    id_usuario = Column(Integer, ForeignKey("usuario.id"))
     origen = Column(String)
     destino = Column(String)
     fecha = Column(Date)
     eliminado_logico = Column(Boolean, default=False)
 
     usuario = relationship("Usuario", back_populates="vuelo_obj")
-    mascota_obj = relationship("Mascota", back_populates="vuelo_obj")
 
     # No necesitamos Config aquí para el modelo ORM.

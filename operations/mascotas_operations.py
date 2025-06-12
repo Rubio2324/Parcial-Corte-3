@@ -1,15 +1,18 @@
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+from sqlalchemy import or_ #
 from sqlalchemy.exc import IntegrityError, OperationalError
 from data import models
 from data.models import MascotaCreate, MascotaUpdate
 from typing import Optional
 
-# --- Operaciones CRUD para Macotas ---
+# --- Operaciones CRUD para mascotas ---
 
 def create_mascota(db: Session, mascota: MascotaCreate):
     try:
-        imagen_url_str = str(mascota.imagen_url) if mascota.imagen_url else None
+        usuario_existente = db.query(models.Usuario).filter(models.usuario.id == mascota.usuario_id).first()
+        if not usuario_existente:
+            raise ValueError(
+                f"¡Atención! El usaurio con ID {mascota.usuario_id} no existe. No se puede crear la mascota.")
 
         db_mascota = models.Mascota(
             nombre=mascota.nombre,
@@ -21,13 +24,17 @@ def create_mascota(db: Session, mascota: MascotaCreate):
         db.commit()
         db.refresh(db_mascota)
         return db_mascota
+    except ValueError as e:
+        db.rollback()
+        print(f"Error al crear mascota: {e}")
+        raise
     except IntegrityError as e:
         db.rollback()
-        print(f"¡Error de integridad al crear el mascota! Detalles: {e}")
-        raise ValueError("Ya existe una mascota con ese nombre o datos inválidos.")
+        print(f"¡Error de integridad al añadir a la mascota! Detalles: {e}")
+        raise ValueError("No se pudo añadir a la mascota. Asegúrate de que el usaurio_id sea válido.")
     except Exception as e:
         db.rollback()
-        print(f"¡Oops! Un error inesperado ocurrió al crear la mascota: {e}")
+        print(f"¡Oops! Un error inesperado ocurrió al crear ella mascota: {e}")
         raise
 
 def get_all_mascotas(db: Session, skip: int = 0, limit: int = 100):
@@ -59,15 +66,20 @@ def update_mascota(db: Session, mascota_id: int, mascota: MascotaUpdate):
         db_mascota = db.query(models.Mascota).filter(models.Mascota.id == mascota_id).first()
         if db_mascota:
             update_data = mascota.model_dump(exclude_unset=True)
+            if 'usuario_id' in update_data and update_data['usaurio_id'] is not None:
+                usuario_existente = db.query(models.Vuelo).filter(models.Vuelo.id == update_data['usuarip_id']).first()
+                if not usuario_existente:
+                    raise ValueError(f"¡Atención! El usuario con ID {update_data['usuario_id']} no existe. No se puede actualizar la mascota.")
+
             for key, value in update_data.items():
-                # Convertir HttpUrl a str si es necesario
-                if key == "imagen_url" and value is not None:
-                    setattr(db_mascota, key, str(value))
-                else:
-                    setattr(db_mascota, key, value)
+                setattr(db_mascota, key, value)
             db.commit()
             db.refresh(db_mascota)
         return db_mascota
+    except ValueError as e:
+        db.rollback()
+        print(f"Error al actualizar mascota: {e}")
+        raise
     except IntegrityError as e:
         db.rollback()
         print(f"¡Error de integridad al actualizar la mascota! Detalles: {e}")
@@ -96,32 +108,52 @@ def soft_delete_mascota(db: Session, mascota_id: int):
 
 def search_mascotas(
     db: Session,
+    query_str: Optional[str] = None, # Renombrado para evitar conflicto con 'query' de SQLAlchemy
+    id_usuario: Optional[int] = None,
     nombre: Optional[str] = None,
     tipo: Optional[str] = None,
     raza: Optional[str] = None,
-    id_usuario: Optional[int] = None, # Renombrado para mayor claridad
-    id_vuelo: Optional[int] = None,
-    eliminado: bool = False,
+    id_mascota: Optional[int] = None, # Renombrado para mayor claridad
+    eliminado: bool = False
 ):
-    try:
-        query = db.query(models.Mascota).filter(models.Mascota.eliminado_logico == eliminado)
-        if nombre:
-            # Buscar por nombre (case-insensitive)
-            query = query.filter(models.Mascota.nombre.ilike(f"%{nombre}%"))
-        if tipo:
-            query = query.filter(models.Mascota.tipo.ilike(f"%{tipo}%"))
-        if raza:
-            query = query.filter(models.Mascota.raza.ilike(f"%{raza}%"))
-        if id_mascota:
-            query = query.filter(models.Mascota.id == id_mascota)
 
-        return query.all()
+    try:
+        base_query = db.query(models.Mascota).options(joinedload(models.Mascota.usuario_obj)).filter(
+            models.Mascota.eliminado_logico == eliminado
+        )
+
+        filters = []
+
+        if query_str:
+            filters.append(
+                or_(
+                    models.Mascota.nombre.ilike(f"%{query_str}%"),
+                    models.Mascota.usuario_obj.has(models.Usuario.nombre.ilike(f"%{query_str}%"))
+                )
+            )
+        if usuario_id:
+            filters.append(models.Mascota.usuario_id == id_usuario)
+        if tipo:
+            filters.append(models.Mascota.tipo.ilike(f"%{Tipo}%"))
+        if raza:
+            filters.append(models.Mascota.raza.ilike(f"%{raza}%"))
+        if id_mascota:
+            filters.append(models.Mascota.id == id_mascota)
+
+        # Aplica todos los filtros
+        if filters:
+            base_query = base_query.filter(*filters)
+
+        return base_query.all()
     except OperationalError as e:
         print(f"¡Problema de conexión con la base de datos al buscar mascotas! Detalles: {e}")
-        raise ConnectionError("No se pudo conectar a la base de datos para realizar la búsqueda.")
+        raise ConnectionError("No se pudo conectar a la base de datos para la búsqueda de mascotas.")
     except Exception as e:
         print(f"¡Error desconocido al buscar mascotas! Detalles: {e}")
         raise
+
+# --- Funciones para Estadísticas de Jugadores ---
+
 
 def get_soft_deleted_mascotas(db: Session, skip: int = 0, limit: int = 100):
     try:
